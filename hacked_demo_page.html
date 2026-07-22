@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Compromised</title>
+<style>
+  :root{
+    --bg:#0A0E27;
+    --neon:#00F5A0;
+    --red:#FF3B5C;
+    --cyan:#00D9FF;
+    --muted:#8B93B0;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg);
+    font-family:'Courier New', monospace;
+    overflow:hidden;
+  }
+  canvas#matrix{
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    opacity:0.35;
+  }
+  .wrap{
+    position:relative; z-index:2;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:24px;
+  }
+  .glitch{
+    font-size:clamp(2rem, 8vw, 4.5rem);
+    font-weight:bold;
+    color:#fff;
+    letter-spacing:2px;
+    position:relative;
+    animation: flicker 2.4s infinite;
+    text-shadow: 0 0 18px rgba(255,59,92,0.8);
+  }
+  .glitch span{ color:var(--red); }
+  @keyframes flicker{
+    0%,19%,21%,23%,25%,54%,56%,100%{ opacity:1; }
+    20%,22%,24%,55%{ opacity:0.55; }
+  }
+  .sub{
+    margin-top:14px;
+    color:var(--red);
+    font-size:clamp(0.9rem, 2.6vw, 1.2rem);
+    letter-spacing:3px;
+  }
+  .term{
+    margin-top:34px;
+    background:rgba(18,22,50,0.9);
+    border:1px solid var(--neon);
+    border-radius:10px;
+    padding:20px 24px;
+    max-width:620px;
+    width:100%;
+    text-align:left;
+    font-size:0.9rem;
+    color:var(--neon);
+    box-shadow:0 0 30px rgba(0,245,160,0.15);
+  }
+  .term .line{ margin:6px 0; white-space:pre; color:#c9d4f0; }
+  .term .line b{ color:var(--cyan); }
+  .cursor{ display:inline-block; width:8px; background:var(--neon); animation:blink 1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .reveal{
+    margin-top:38px;
+    max-width:640px;
+    background:rgba(0,245,160,0.08);
+    border:1px dashed var(--neon);
+    border-radius:10px;
+    padding:18px 22px;
+    color:#e8ecf9;
+    font-family: Arial, sans-serif;
+    font-size:0.95rem;
+    line-height:1.5;
+    opacity:0;
+    transform:translateY(10px);
+    transition:opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.show{ opacity:1; transform:translateY(0); }
+  .reveal b{ color:var(--neon); }
+</style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<div class="wrap">
+  <div class="glitch">YOU'VE BEEN <span>HACKED</span></div>
+  <div class="sub">// SYSTEM COMPROMISED — UNAUTHORIZED ACCESS DETECTED</div>
+
+  <div class="term" id="term"></div>
+
+  <div class="reveal" id="reveal">
+    Relax — <b>nobody actually hacked anything.</b> This page is a live demo for a
+    cybersecurity presentation, showing how easily a scanned QR code or clicked link
+    can take you somewhere you didn't expect. That's the whole lesson: check before you scan,
+    check before you click.
+  </div>
+</div>
+
+<script>
+// Matrix rain background
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+const chars = "01<>/[]{}#$%&ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const fontSize = 16;
+let columns, drops;
+function setup(){
+  columns = Math.floor(canvas.width / fontSize);
+  drops = Array(columns).fill(1);
+}
+setup();
+window.addEventListener('resize', setup);
+function draw(){
+  ctx.fillStyle = 'rgba(10,14,39,0.15)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#00F5A0';
+  ctx.font = fontSize + 'px monospace';
+  for(let i=0;i<drops.length;i++){
+    const text = chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+    if(drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(draw, 45);
+
+// Typed terminal lines
+const lines = [
+  "> initiating remote session...",
+  "> access granted: <b>root@your-device</b>",
+  "> scanning files ..... <b>done</b>",
+  "> webcam: <b>disabled</b>   mic: <b>disabled</b>",
+  "> this was a QR code demo, not a real breach_"
+];
+const term = document.getElementById('term');
+let li = 0;
+function typeLine(){
+  if(li >= lines.length){
+    document.getElementById('reveal').classList.add('show');
+    return;
+  }
+  const div = document.createElement('div');
+  div.className = 'line';
+  div.innerHTML = lines[li];
+  term.appendChild(div);
+  li++;
+  setTimeout(typeLine, 650);
+}
+setTimeout(typeLine, 500);
+</script>
+</body>
+</html>
